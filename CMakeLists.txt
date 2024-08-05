@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(Project3Group68)
+project(DSAGroup68)
 
 set(CMAKE_CXX_STANDARD 17)
 
