@@ -1,10 +1,13 @@
-#include <iostream>
+#include <SFML/Graphics.hpp>
 #include <vector>
+#include <string>
 #include <algorithm>
-using namespace std;
+#include <iostream>
+#include "gui.h"
 #include "bridges-cxx-3.4.4-arm64-apple-darwin23.5.0/include/Bridges.h"
 #include "bridges-cxx-3.4.4-arm64-apple-darwin23.5.0/include/DataSource.h"
-#include "bridges-cxx-3.4.4-arm64-apple-darwin23.5.0/include/MovieActorWikidata.h"
+#include "bridges-cxx-3.4.4-arm64-apple-darwin23.5.0/include/data_src/MovieActorWikidata.h"
+using namespace std;
 using namespace bridges;
 
 // Quick Sort implementation
@@ -72,54 +75,107 @@ void merge_sort(vector<MovieActorWikidata>& arr, int left, int right, bool by_ac
     merge(arr, left, mid, right, by_actor, ascending);
 }
 
+void drawData(sf::RenderWindow& window, const std::vector<MovieActorWikidata>& v, float scrollPercentage) {
+    int maxDataOnScreen = 20; // Number of names to show at once
+    int totalData = v.size();
+    int maxStartIndex = totalData - maxDataOnScreen;
 
-// This program fragment illustrates how to access and read the Wikidata actor/movie data
-int main(int argc, char **argv) {
+    int startIndex = scrollPercentage * maxStartIndex;
 
+    sf::Font font;
+    if (!font.loadFromFile("AovelSansRounded-rdDL.ttf")) { // Replace with the correct path
+        std::cerr << "Error loading font!" << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < maxDataOnScreen && ((startIndex + i) < totalData); ++i) {
+        sf::Text dataText;
+        dataText.setFont(font);
+        dataText.setString(v[startIndex + i].getActorName() + " : " + v[startIndex + i].getMovieName());
+        dataText.setCharacterSize(24);
+        dataText.setFillColor(sf::Color::Black);
+        dataText.setPosition(50, 50 + i * 26);
+        window.draw(dataText);
+    }
+}
+
+int main() {
     // create Bridges object
-    Bridges bridges(2, "adrianp",
-                    "731809136664");
+    Bridges bridges(2, "adrianp","731809136664");
 
     // set title
     bridges.setTitle("Accessing Wikidata Movie/Actor Data");
 
     // create data source object
-    DataSource ds (&bridges);
+    DataSource ds(&bridges);
+
+    ds.setSourceType("local");
 
     // get the actor movie Wikidata data through the BRIDGES API for 1955.
     // data are available from the early 20th century to now.
-    vector<MovieActorWikidata> v = ds.getWikidataActorMovie(1905, 1928);
+    std::vector<MovieActorWikidata> v = ds.getWikidataActorMovie(1905, 1928);
 
-    // print the count of the records in 1955
-    cout << "Data Records from 1905 to 1918: " << v.size() << "\n";
+    SelectScreenGui menu;
+    SortScreenGui listy;
+    bool startScreen = true;
 
 
-    //TODO: change to work in tandem with the GUI (depending on which button/option the user selects)
-    int choice;
-    cout << "Choose sorting criteria:\n1. Actor\n2. Movie\n";
-    cin >> choice;
-    bool by_actor = (choice == 1);
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Get Movie Info NOW");
+    while (window.isOpen()) {
+        if (startScreen) {
+            //menu screen
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                    return 0;
+                } else if (event.type == sf::Event::MouseButtonPressed) {
+                    menu.click(event, window);
 
-    cout << "Choose sorting order:\n1. Ascending\n2. Descending\n";
-    cin >> choice;
-    bool ascending = (choice == 1);
+                    if (menu.isSortPressed()) { //if sort button pressed return true, move to list screen
+                        vector<bool> param;
+                        param.clear();
+                        param = menu.getParam(menu.getButtons()); // {bool merge, bool movie, bool ascending}
+                        if (param[0]) {
+                            quick_sort(v, 0, v.size() - 1, param[1], param[2]);
+                        } else {
+                            merge_sort(v, 0, v.size() - 1, param[1], param[2]);
+                        }
+                        startScreen = false;
+                        break;
+                    }
+                }
+            }
+            window.clear(sf::Color::White);
+            menu.draw(window);
+            window.display();
+        } else {
+            //sorting screen
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                    return 0;
+                } else if (event.type == sf::Event::MouseButtonPressed) {
+                    listy.click(event, window); //check if click happens
 
-    cout << "Choose sorting algorithm:\n1. Quick Sort\n2. Merge Sort\n";
-    cin >> choice;
-    bool use_quick_sort = (choice == 1);
+                    if (listy.goBack()) { //back button pressed
+                        startScreen = true;
+                        listy.reset();
+                        menu.reset();
+                        break;
+                    }
+                }
 
-    if (use_quick_sort) {
-        quick_sort(v, 0, v.size() - 1, by_actor, ascending);
-    } else {
-        merge_sort(v, 0, v.size() - 1, by_actor, ascending);
+                listy.scroll(event, window); //check if scroll bar is in use if event is correct
+            }
+            window.clear(sf::Color::White);
+            listy.draw(window);
+            drawData(window, v, listy.getScrollPercentage());
+            window.display();
+        }
     }
-
-    // print out the first 20 records of the sorted dataset
-
-    for (int k = 0; k < 20; k++)
-        cout << "Actor-Movie Data:" << endl
-             << "\tMovie: " << "\"" <<v[k].getMovieName()<< "\"\n"
-             << "\tActor: " << "\"" <<v[k].getActorName() << "\"\n";
 
     return 0;
 }
+
