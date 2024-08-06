@@ -30,12 +30,12 @@ void Button::setSelect(bool condition) {
     if (condition) {
         //highlight box with a blue color when clicked and not highlighted
         this->buttonShape.setFillColor(sf::Color(0, 128, 255));
-        selected = !selected;
+        selected = true;
     }
     else {
         //unhighlight box
         this->buttonShape.setFillColor(sf::Color::White);
-        selected = !selected;
+        selected = false;
     }
 }
 
