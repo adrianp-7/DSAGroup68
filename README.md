@@ -11,7 +11,6 @@ This project compares the performance of the Quicksort and Merge Sort algorithms
 - [Installation](#installation)
 - [Usage](#usage)
 - [Algorithm Analysis](#algorithm-analysis)
-- [License](#license)
 
 ## Introduction
 
@@ -91,10 +90,6 @@ Quicksort is an efficient, in-place sorting algorithm. The worst-case scenario o
 **Worst-Case Time Complexity:** \(O(nlog n)\)
 
 Merge Sort is a stable, divide-and-conquer sorting algorithm. It always has a time complexity of \(O(n \log n)\) and requires additional memory proportional to the size of the input array. Merge Sort is preferred for its predictable performance and stability.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
