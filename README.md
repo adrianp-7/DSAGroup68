@@ -1,6 +1,6 @@
 # Actor-Movie Sorting and Analysis
 
-This project compares the performance of the Quicksort and Merge Sort algorithms on a large dataset of actor-movie pairs sourced from Wikidata using the Bridges API. The program allows users to load data from the Bridges API and choose sorting criteria (actor or movie), sorting order (ascending or descending), and sorting algorithm (Quick Sort or Merge Sort). The goal is to provide insights into the relative performance of these algorithms when sorting large datasets.
+This project compares the performance of the Quicksort and Merge Sort algorithms on a large dataset of actor-movie pairs sourced from Wikidata using the Bridges API. The program allows users to load data from the Bridges API and choose sorting criteria (actor or movie), sorting order (ascending or descending), and sorting algorithm (Quicksort or Merge Sort). The goal is to provide insights into the relative performance of these algorithms when sorting large datasets.
 
 ## Table of Contents
 
