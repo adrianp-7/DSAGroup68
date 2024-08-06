@@ -109,8 +109,6 @@ int main() {
     // create data source object
     DataSource ds(&bridges);
 
-    ds.setSourceType("local");
-
     // get the actor movie Wikidata data through the BRIDGES API for 1955.
     // data are available from the early 20th century to now.
     std::vector<MovieActorWikidata> v = ds.getWikidataActorMovie(1905, 1928);
